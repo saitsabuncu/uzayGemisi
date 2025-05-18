@@ -1,4 +1,5 @@
 import sys, pygame
+from settings import Setting
 
 class AlienInvasion:
     """
@@ -12,7 +13,11 @@ class AlienInvasion:
         oyun kaynaklarını oluştur.
         """
         pygame.init()
-        self.screen = pygame.display.set_mode((1200, 800))
+        self.settings = Setting()
+        self.screen = pygame.display.set_mode(
+            (self.settings.screen_width,
+             self.settings.screen_height)
+        )
         pygame.display.set_caption("Uzayli Istilasi")
         # Arka plan rengini ayarla.
         self.bg_color = (230, 230, 230)
@@ -25,7 +30,7 @@ class AlienInvasion:
                 if event.type == pygame.QUIT:
                     sys.exit()
             # Döngüden her geçişte ekranı yeniden çizdir.
-            self.screen.fill(self.bg_color)
+            self.screen.fill(self.settings.bg_color)
             # En son çizilen ekranı görünür yap.
             pygame.display.flip()
 
