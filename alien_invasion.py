@@ -1,5 +1,6 @@
 import sys, pygame
 from settings import Setting
+from ship import Ship
 
 class AlienInvasion:
     """
@@ -21,18 +22,26 @@ class AlienInvasion:
         pygame.display.set_caption("Uzayli Istilasi")
         # Arka plan rengini ayarla.
         self.bg_color = (230, 230, 230)
+        self.ship=Ship(self)
 
     def run_game(self):
         """Oyun için ana döngüyü başlat."""
         while True:
-            # Klavye ve fare olaylarını gözle.
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-            # Döngüden her geçişte ekranı yeniden çizdir.
-            self.screen.fill(self.settings.bg_color)
-            # En son çizilen ekranı görünür yap.
-            pygame.display.flip()
+            self._check_events()
+            self._update_screen()
+
+    def _check_events(self):
+        """Klavye ve fare olaylarına yanıt ver."""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+    def _update_screen(self):
+        """Ekrandaki resimleri güncelle ve yeni ekran ekle."""
+        self.screen.fill(self.settings.bg_color)
+        self.ship.blitme()
+        pygame.display.flip()
+
 
 if __name__ == '__main__':
     # bir oyun örneği oluştur ve oyunu çalıştır.
