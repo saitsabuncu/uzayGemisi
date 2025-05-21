@@ -6,6 +6,7 @@ class Ship:
         """
         Gemiyi başlat ve başlangıç konumunu belirle."""
         self.screen=ai_game.screen
+        self.settings = ai_game.settings
         self.screen_rect=ai_game.screen.get_rect()
 
         # Gemiyi yükle ve dikdörtgenini al.
@@ -16,6 +17,10 @@ class Ship:
         # Her gemiyi ekranın alt merkezinde başlat.
         self.rect.midbottom=self.screen_rect.midbottom
 
+        #geminn yatay ve dikey konumları için ondalık değeri sakla
+        self.x = float(self.rect.x)
+        self.y = float(self.rect.y)
+
         # Hareket bayrakları
         self.moving_right = False
         self.moving_left = False
@@ -23,16 +28,23 @@ class Ship:
         self.moving_down = False
 
     def update(self):
+        """
+        hareket bayrağına bağlı olarak
+        konumu güncelle
+        """
+        # rect'i değil de geminin x, y değerini güncelle
         # Sağ/sol hareket
         if self.moving_right and self.rect.right < self.screen_rect.right:
-            self.rect.x += 1
+            self.x += self.settings.ship_speed
         if self.moving_left and self.rect.left > 0:
-            self.rect.x -= 1
+            self.x -= self.settings.ship_speed
         # Yukarı/aşağı hareket
         if self.moving_up and self.rect.top > 0:
-            self.rect.y -= 1
+            self.y -= self.settings.ship_speed
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
-            self.rect.y += 1
+            self.y += self.settings.ship_speed
+        self.rect.x = self.x
+        self.rect.y = self.y
 
     def blitme(self):
         """Gemiyi mevcut konumunda çiz."""
