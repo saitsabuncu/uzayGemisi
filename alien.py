@@ -10,7 +10,7 @@ class Alien(Sprite):
         self.screen = ai_game.screen
 
         #uzaylı resmini yükle ve rect niteliğini ayarla.
-        original_image = pygame.image.load('images/alien.bmp')
+        original_image = pygame.image.load('images/alien.png').convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 48))
         self.rect = self.image.get_rect()
 

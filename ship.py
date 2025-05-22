@@ -10,7 +10,7 @@ class Ship:
         self.screen_rect=ai_game.screen.get_rect()
 
         # Gemiyi yükle ve dikdörtgenini al.
-        original_image = pygame.image.load('images/ship.bmp')
+        original_image = pygame.image.load('images/ship.png').convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 48))  # genişlik, yükseklik
         self.rect=self.image.get_rect()
 
