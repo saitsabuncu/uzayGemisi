@@ -2,6 +2,7 @@ import sys, pygame
 from settings import Setting
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 class AlienInvasion:
     """
@@ -23,6 +24,8 @@ class AlienInvasion:
         self.bg_color = (230, 230, 230)
         self.ship=Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+        self._create_fleet()
 
     def run_game(self):
         """Oyun için ana döngüyü başlat."""
@@ -93,10 +96,30 @@ class AlienInvasion:
         """Ekrandaki resimleri güncelle ve yeni ekran ekle."""
         self.screen.fill(self.settings.bg_color)
         self.ship.blitme()
+
+        # Önce tüm mermileri çiz
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+
+        # Sonra uzaylıları bir kez çiz
+        self.aliens.draw(self.screen)
+
         pygame.display.flip()
 
+    def _create_fleet(self):
+        """uzaylı filosunu oluştur."""
+        alien = Alien(self)
+        alien_width = alien.rect.width
+        available_space_x = self.settings.screen_width - (2 * alien_width)
+        number_aliens_x = available_space_x // (2 * alien_width)
+
+        #ilk uzaylı satırını oluştur.
+        for alien_number in range(number_aliens_x):
+            # bir uzaylı oluştur ve satıra yerleştir.
+            alien = Alien(self)
+            alien.x = alien_width + 2 * alien_width * alien_number
+            alien.rect.x = alien.x
+            self.aliens.add(alien)
 
 if __name__ == '__main__':
     # bir oyun örneği oluştur ve oyunu çalıştır.
