@@ -7,11 +7,11 @@ class Setting:
         # Gemi settings
         self.ship_speed = 1.5
         # mermi settings
-        self.bullet_speed = 1.5
-        self.bullet_width = 30
+        self.bullet_speed = 3
+        self.bullet_width = 5
         self.bullet_height = 15
         self.bullet_color = (60,60,60)
-        self.bullets_allowed = 3
+        self.bullets_allowed = 4
         #alien ayarlari
         self.alien_speed = 1.0
         self.fleet_drop_speed = 10

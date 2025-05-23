@@ -78,10 +78,29 @@ class AlienInvasion:
 
     def _fire_bullet(self):
         """yeni bir mermi oluştur
-        ve bu mermi grubunu sakla."""
+        ve bu mermi grubunu sakla,
+        Gemiden birden fazla yerden mermi ateşle.
+        """
         if len(self.bullets) < self.settings.bullets_allowed:
-            new_bullet = Bullet(self)
-            self.bullets.add(new_bullet)
+            # Orta mermi
+            center_bullet = Bullet(self)
+            center_bullet.rect.midtop = self.ship.rect.midtop
+            center_bullet.y = float(center_bullet.rect.y)
+            self.bullets.add(center_bullet)
+
+            # Sol mermi
+            left_bullet = Bullet(self)
+            left_bullet.rect.midtop = self.ship.rect.midleft
+            left_bullet.rect.x -= 5  # Biraz sola kaydır
+            left_bullet.y = float(left_bullet.rect.y)
+            self.bullets.add(left_bullet)
+
+            # Sağ mermi
+            right_bullet = Bullet(self)
+            right_bullet.rect.midtop = self.ship.rect.midright
+            right_bullet.rect.x += 15  # Biraz sağa kaydır
+            right_bullet.y = float(right_bullet.rect.y)
+            self.bullets.add(right_bullet)
 
     def _update_bullets(self):
         """mermilerin konumunu güncelle ve
@@ -99,16 +118,24 @@ class AlienInvasion:
         # çarpışan mermi ve uzaylıları sil.
         collisions = pygame.sprite.groupcollide(
             self.bullets, self.aliens, True, True)
+
         if not self.aliens:
+            # var olan mermileri imha et ve yeni filo oluştur.
             self.bullets.empty()
             self._create_fleet()
+            # print("Yeni uzaylı sayısı:", len(self.aliens))
 
     def _update_aliens(self):
         """Filonun kenarda olup olmadığını
-        kontrol et ve daha sonra filodaki tüm
-        uzaylıların konumunu güncelle."""
+        kontrol et , daha sonra filodaki tüm
+        uzaylıların konumunu güncelle
+        ve ve çarpışmayı kontrol et."""
         self._check_fleet_edges()
         self.aliens.update()
+
+        # Uzaylı-gemi çarpışmasını kontrol et
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            print("Gemi vuruldu !!!")
 
     def _update_screen(self):
         """Ekrandaki resimleri güncelle ve yeni ekran ekle."""
@@ -118,8 +145,7 @@ class AlienInvasion:
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
 
-        self.aliens.draw(self.screen)  # DÖNGÜNÜN DIŞINA TAŞINDI
-
+        self.aliens.draw(self.screen)
         pygame.display.flip()
 
     def _create_fleet(self):
