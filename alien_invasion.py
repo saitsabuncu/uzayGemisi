@@ -84,13 +84,18 @@ class AlienInvasion:
             self.bullets.add(new_bullet)
 
     def _update_bullets(self):
-        """mermilerin konumu update ve
-        mermilerden kurtul."""
+        """mermilerin konumunu güncelle ve
+        eski mermilerden kurtul."""
         self.bullets.update()
         # kaybolan mermilerden kurtul.
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
+        #uzaylılara çarpan mermileri kontrol et.
+        # Eğer öyleyse mermi ve uzaylıdan kurtul.
+        collisions = pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, True
+        )
 
     def _update_aliens(self):
         """Filonun kenarda olup olmadığını
