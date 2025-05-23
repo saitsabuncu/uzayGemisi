@@ -14,3 +14,7 @@ class Setting:
         self.bullets_allowed = 3
         #alien ayarlari
         self.alien_speed = 1.0
+        self.fleet_drop_speed = 10
+
+        #filo yönü; 1 sağı, -1 solu temsil ediyor.
+        self.fleet_direction = 1

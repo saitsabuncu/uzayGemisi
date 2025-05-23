@@ -33,7 +33,7 @@ class AlienInvasion:
             self._check_events()
             self.ship.update()
             self._update_bullets()
-            #print(len(self.bullets))
+            self._update_aliens()
 
             self._update_screen()
 
@@ -92,6 +92,13 @@ class AlienInvasion:
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
 
+    def _update_aliens(self):
+        """Filonun kenarda olup olmadığını
+        kontrol et ve daha sonra filodaki tüm
+        uzaylıların konumunu güncelle."""
+        self._check_fleet_edges()
+        self.aliens.update()
+
     def _update_screen(self):
         """Ekrandaki resimleri güncelle ve yeni ekran ekle."""
         self.screen.fill(self.settings.bg_color)
@@ -131,6 +138,24 @@ class AlienInvasion:
         alien.rect.x = alien.x
         alien.rect.y = alien_height + 2 * alien.rect.height * row_number
         self.aliens.add(alien)
+
+    def _check_fleet_edges(self):
+        """
+        herhangi bir uzaylı bir kenara
+        ulaştığında uygun bir şekilde yanıt ver.
+        """
+        for alien in self.aliens.sprites():
+            if alien.check_edges():
+                self._change_fleet_direction()
+                break
+
+    def _change_fleet_direction(self):
+        """tüm bir filoyu düşür
+        ve filonun yönünü değiştir."""
+        for alien in self.aliens.sprites():
+            alien.rect.y += self.settings.fleet_drop_speed
+        self.settings.fleet_direction *= -1
+
 if __name__ == '__main__':
     # bir oyun örneği oluştur ve oyunu çalıştır.
     ai = AlienInvasion()
