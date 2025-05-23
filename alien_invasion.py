@@ -92,10 +92,16 @@ class AlienInvasion:
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
         #uzaylılara çarpan mermileri kontrol et.
-        # Eğer öyleyse mermi ve uzaylıdan kurtul.
+        self._check_bullet_alien_collisions()
+
+    def _check_bullet_alien_collisions(self):
+        """mermi-uzaylı çarpışmasına yanıt ver."""
+        # çarpışan mermi ve uzaylıları sil.
         collisions = pygame.sprite.groupcollide(
-            self.bullets, self.aliens, True, True
-        )
+            self.bullets, self.aliens, True, True)
+        if not self.aliens:
+            self.bullets.empty()
+            self._create_fleet()
 
     def _update_aliens(self):
         """Filonun kenarda olup olmadığını
@@ -109,12 +115,10 @@ class AlienInvasion:
         self.screen.fill(self.settings.bg_color)
         self.ship.blitme()
 
-        # Önce tüm mermileri çiz
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
 
-        # Sonra uzaylıları bir kez çiz
-        self.aliens.draw(self.screen)
+        self.aliens.draw(self.screen)  # DÖNGÜNÜN DIŞINA TAŞINDI
 
         pygame.display.flip()
 

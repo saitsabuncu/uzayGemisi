@@ -7,7 +7,7 @@ class Setting:
         # Gemi settings
         self.ship_speed = 1.5
         # mermi settings
-        self.bullet_speed = 1.0
+        self.bullet_speed = 1.5
         self.bullet_width = 30
         self.bullet_height = 15
         self.bullet_color = (60,60,60)
