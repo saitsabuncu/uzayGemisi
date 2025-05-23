@@ -1,5 +1,7 @@
 import sys, pygame
+from time import sleep
 from settings import Setting
+from game_stats import GameStats
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
