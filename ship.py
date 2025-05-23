@@ -49,3 +49,8 @@ class Ship:
     def blitme(self):
         """Gemiyi mevcut konumunda çiz."""
         self.screen.blit(self.image, self.rect)
+
+    def center_ship(self):
+        """gemiyi ekrandan merkeze koy."""
+        self.rect.midbottom = self.screen_rect.midbottom
+        self.x = float(self.rect.x)
