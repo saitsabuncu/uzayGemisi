@@ -2,6 +2,7 @@ import sys, pygame
 from time import sleep
 from settings import Setting
 from game_stats import GameStats
+from scoreboard import Scoreboard
 from button import Button
 from ship import Ship
 from bullet import Bullet
@@ -22,9 +23,10 @@ class AlienInvasion:
                                               self.settings.screen_height))
 
         pygame.display.set_caption("Uzayli Istilasi")
-        # Oyun istatistiklerini saklamak
+        # bir skorbord ve Oyun istatistiklerini saklamak
         # bir örnek oluştur.
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
         self.ship = Ship(self)
         # Arka plan rengini ayarla.
         self.bg_color = (230, 230, 230)
@@ -70,8 +72,8 @@ class AlienInvasion:
         if button_clicked and not self.stats.game_active:
             # oyun ayarlarını resetle.
             self.settings.initialize_dynamic_settings()
+            self.sb.prep_score()
             self._start_game()
-
 
     def _check_keydown_events(self,event):
         """tuşa basmalara yanıt ver."""
@@ -101,7 +103,6 @@ class AlienInvasion:
         self.ship.center_ship()
         # Fare imlecini gizle.
         pygame.mouse.set_visible(False)
-
 
     def _check_keyup_events(self, event):
         """Tuşu serbest bırakmalara yanıt ver."""
@@ -157,6 +158,12 @@ class AlienInvasion:
         collisions = pygame.sprite.groupcollide(
             self.bullets, self.aliens, True, True)
 
+        if collisions:
+            for aliens in collisions.values():
+                self.stats.score += self.settings.alien_points * len(aliens)
+            self.sb.prep_score()
+
+
         if not self.aliens:
             # var olan mermileri imha et ve yeni filo oluştur.
             self.bullets.empty()
@@ -188,6 +195,9 @@ class AlienInvasion:
 
         self.aliens.draw(self.screen)
 
+        # skor bilgisini çiz.
+        self.sb.show_score()
+
         # Oyun aktif değilse play düğmesini çiz.
         if not self.stats.game_active:
             self.play_button.draw_button()
@@ -209,7 +219,6 @@ class AlienInvasion:
         for row_number in range(number_rows):
             for alien_number in range(number_aliens_x):
                 self._create_alien(alien_number, row_number)
-
 
     def _create_alien(self, alien_number, row_number):
         """bir uzaylı oluştur ve satıra yerleştir. """
