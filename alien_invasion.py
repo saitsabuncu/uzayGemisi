@@ -73,6 +73,8 @@ class AlienInvasion:
             # oyun ayarlarını resetle.
             self.settings.initialize_dynamic_settings()
             self.sb.prep_score()
+            self.sb.prep_level()
+            self.sb.prep_ships()
             self._start_game()
 
     def _check_keydown_events(self,event):
@@ -164,13 +166,15 @@ class AlienInvasion:
             self.sb.prep_score()
             self.sb.check_high_score()
 
-
         if not self.aliens:
             # var olan mermileri imha et ve yeni filo oluştur.
             self.bullets.empty()
             self._create_fleet()
             self.settings.increase_speed()
             # print("Yeni uzaylı sayısı:", len(self.aliens))
+            # seviyeyi arttır.
+            self.stats.level += 1
+            self.sb.prep_level()
 
     def _update_aliens(self):
         """Filonun kenarda olup olmadığını
@@ -249,10 +253,10 @@ class AlienInvasion:
 
     def _ship_hit(self):
         """uzaylı tarafından vurulan gemiye yanıt ver."""
-
         if self.stats.ships_left > 0:
-            # ship_left'i azalt.
+            # ship_left'i azalt ve skorbordu güncelle.
             self.stats.ships_left -= 1
+            self.sb.prep_ships()
 
         # geri kalan uzaylı ve mermilerden kurtul.
             self.aliens.empty()
@@ -266,6 +270,7 @@ class AlienInvasion:
         else:
             self.stats.game_active = False
             pygame.mouse.set_visible(True)
+
 
     def _check_aliens_bottom(self):
         """ Herhangi bir uzaylının ekranın alt
