@@ -68,6 +68,8 @@ class AlienInvasion:
         """Oyuncu Play'e tıkladığında yeni bir oyun başlat."""
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.stats.game_active:
+            # oyun ayarlarını resetle.
+            self.settings.initialize_dynamic_settings()
             self._start_game()
 
 
@@ -159,6 +161,7 @@ class AlienInvasion:
             # var olan mermileri imha et ve yeni filo oluştur.
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
             # print("Yeni uzaylı sayısı:", len(self.aliens))
 
     def _update_aliens(self):

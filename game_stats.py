@@ -12,3 +12,4 @@ class GameStats:
         """oyun esnasında değişebilecek
         istatistiklere ilk değer ata."""
         self.ships_left = self.settings.ship_limit
+        self.score = 0
