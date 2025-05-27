@@ -40,15 +40,18 @@ class AlienInvasion:
 
     def run_game(self):
         """Oyun için ana döngüyü başlat."""
-        while True:
-            self._check_events()
+        try:
+            while True:
+                self._check_events()
 
-            if self.stats.game_active:
-                self.ship.update()
-                self._update_bullets()
-                self._update_aliens()
+                if self.stats.game_active:
+                    self.ship.update()
+                    self._update_bullets()
+                    self._update_aliens()
 
-            self._update_screen()
+                self._update_screen()
+        finally:
+            self.stats.save_high_score()
 
     def _check_events(self):
         """Klavye ve fare olaylarına yanıt ver."""
