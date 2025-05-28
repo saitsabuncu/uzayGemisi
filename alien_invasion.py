@@ -37,6 +37,7 @@ class AlienInvasion:
 
         # Play düğmesini oluştur.
         self.play_button = Button(self, "Play")
+        self.game_over_button = Button(self, "Game Over")
 
     def run_game(self):
         """Oyun için ana döngüyü başlat."""
@@ -71,10 +72,14 @@ class AlienInvasion:
 
     def _check_play_button(self, mouse_pos):
         """Oyuncu Play'e tıkladığında yeni bir oyun başlat."""
-        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
-        if button_clicked and not self.stats.game_active:
-            # oyun ayarlarını resetle.
+        if self.play_button.rect.collidepoint(mouse_pos) and not self.stats.game_active:
             self.settings.initialize_dynamic_settings()
+            self.sb.prep_score()
+            self.sb.prep_level()
+            self.sb.prep_ships()
+            self._start_game()
+        elif self.game_over_button.rect.collidepoint(mouse_pos) and not self.stats.game_active:
+            self.stats.reset_stats()
             self.sb.prep_score()
             self.sb.prep_level()
             self.sb.prep_ships()
@@ -206,11 +211,15 @@ class AlienInvasion:
         # skor bilgisini çiz.
         self.sb.show_score()
 
-        # Oyun aktif değilse play düğmesini çiz.
+        # Oyun aktif değilse play veya game over düğmesini çiz.
         if not self.stats.game_active:
-            self.play_button.draw_button()
+            if self.stats.ships_left > 0:
 
+                self.play_button.draw_button()
+            else:
+                self.game_over_button.draw_button()
         pygame.display.flip()
+
 
     def _create_fleet(self):
         """uzaylı filosunu oluştur."""
