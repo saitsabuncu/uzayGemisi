@@ -35,3 +35,27 @@ cd uzayGemisi
 pip install pygame
 python alien_invasion.py
 uzayGemisi/
+### Dosya Yapısı
+
+uzayGemisi/
+│
+├── alien.py
+├── alien_invasion.py
+├── bullet.py
+├── button.py
+├── game_stats.py
+├── scoreboard.py
+├── settings.py
+├── ship.py
+├── images/
+│   ├── ship.png
+│   └── alien.png
+└── README.md
+
+
+###  Lisans
+
+Bu proje kişisel öğrenim ve gelişim amacıyla yapılmıştır. Dilersen kaynak kodu inceleyebilir ve kendi oyunlarını geliştirmek için kullanabilirsin ✌️
+### İlham
+
+Bu proje, Eric Matthes'in Python Crash Course kitabındaki "Alien Invasion" oyun örneğinden ilham alınarak geliştirilmiştir.
