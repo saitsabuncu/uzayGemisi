@@ -220,7 +220,6 @@ class AlienInvasion:
                 self.game_over_button.draw_button()
         pygame.display.flip()
 
-
     def _create_fleet(self):
         """uzaylı filosunu oluştur."""
         alien = Alien(self)
@@ -283,7 +282,6 @@ class AlienInvasion:
             self.stats.game_active = False
             pygame.mouse.set_visible(True)
 
-
     def _check_aliens_bottom(self):
         """ Herhangi bir uzaylının ekranın alt
         tarafına ulaşıp ulaşmadığını kontrol et."""
@@ -293,6 +291,13 @@ class AlienInvasion:
                 #buna gemiye çarpıldığında olduğu gibi muamele et.
                 self._ship_hit()
                 break
+
+    def check_high_score(self):
+        if self.stats.score > self.stats.high_score:
+            self.stats.high_score = self.stats.score
+            self.prep_high_score()
+            with open("high_score.txt", "w") as f:
+                f.write(str(self.stats.high_score))
 
 if __name__ == '__main__':
     # bir oyun örneği oluştur ve oyunu çalıştır.

@@ -1,19 +1,19 @@
 class GameStats:
-    """Uzaylı istilası için istatistik tut."""
+    """Uzaylı İstilası için istatistikleri takip eder."""
+
     def __init__(self, ai_game):
-        """istatistiklere ilk değer ata."""
+        """İstatistikleri başlat."""
         self.settings = ai_game.settings
         self.reset_stats()
 
-        # oyunu aktif olmayan durumda başlat.
+        # Oyun başlangıçta aktif değil
         self.game_active = False
 
-        # yüksek skoru dosyadan yükle
+        # Kalıcı yüksek skoru yükle
         self.high_score = self._load_high_score()
 
     def reset_stats(self):
-        """oyun esnasında değişebilecek
-        istatistiklere ilk değer ata."""
+        """Oyun sırasında değişebilecek istatistikleri sıfırla."""
         self.ships_left = self.settings.ship_limit
         self.score = 0
         self.level = 1
@@ -21,12 +21,12 @@ class GameStats:
     def _load_high_score(self):
         """Dosyadan yüksek skoru yükle."""
         try:
-            with open('high_score.txt') as f:
+            with open('high_score.txt', 'r', encoding='utf-8') as f:
                 return int(f.read())
         except FileNotFoundError:
             return 0
 
     def save_high_score(self):
         """Yüksek skoru dosyaya kaydet."""
-        with open('high_score.txt', 'w') as f:
+        with open('high_score.txt', 'w', encoding='utf-8') as f:
             f.write(str(self.high_score))
