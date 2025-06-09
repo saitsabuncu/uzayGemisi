@@ -51,6 +51,7 @@ uzayGemisi/
 │   ├── ship.png
 │   └── alien.png
 └── README.md
+└── difficulty.py
 
 
 ###  Lisans
