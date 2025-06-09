@@ -7,6 +7,7 @@ from button import Button
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from difficulty import DifficultyButton
 
 class AlienInvasion:
     """
@@ -38,6 +39,10 @@ class AlienInvasion:
         # Play düğmesini oluştur.
         self.play_button = Button(self, "Play")
         self.game_over_button = Button(self, "Game Over")
+        self.difficulty_selected = False
+        self.easy_button = DifficultyButton(self, "Kolay", -60)
+        self.medium_button = DifficultyButton(self, "Orta", 0)
+        self.hard_button = DifficultyButton(self, "Zor", 60)
 
     def run_game(self):
         """Oyun için ana döngüyü başlat."""
@@ -68,7 +73,15 @@ class AlienInvasion:
                     #self.ship.rect.x += 1
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                self._check_play_button(mouse_pos)
+                if not self.difficulty_selected:
+                    if self.easy_button.rect.collidepoint(mouse_pos):
+                        self._set_difficulty("easy")
+                    elif self.medium_button.rect.collidepoint(mouse_pos):
+                        self._set_difficulty("medium")
+                    elif self.hard_button.rect.collidepoint(mouse_pos):
+                        self._set_difficulty("hard")
+                else:
+                    self._check_play_button(mouse_pos)
 
     def _check_play_button(self, mouse_pos):
         """Oyuncu Play'e tıkladığında yeni bir oyun başlat."""
@@ -208,16 +221,18 @@ class AlienInvasion:
 
         self.aliens.draw(self.screen)
 
-        # skor bilgisini çiz.
         self.sb.show_score()
 
-        # Oyun aktif değilse play veya game over düğmesini çiz.
-        if not self.stats.game_active:
-            if self.stats.ships_left > 0:
+        # Zorluk seçimi yapılmadıysa zorluk butonlarını çiz
+        if not self.difficulty_selected:
+            self.easy_button.draw_button()
+            self.medium_button.draw_button()
+            self.hard_button.draw_button()
 
-                self.play_button.draw_button()
-            else:
-                self.game_over_button.draw_button()
+        # Oyun durumu aktif değilse play düğmesini çiz
+        elif not self.stats.game_active:
+            self.play_button.draw_button()
+
         pygame.display.flip()
 
     def _create_fleet(self):
@@ -298,6 +313,24 @@ class AlienInvasion:
             self.prep_high_score()
             with open("high_score.txt", "w") as f:
                 f.write(str(self.stats.high_score))
+
+    def _set_difficulty(self, level):
+        """Seçilen zorluk seviyesine göre ayarları güncelle."""
+        if level == "easy":
+            self.settings.ship_speed = 1.5
+            self.settings.bullet_speed = 3.0
+            self.settings.alien_speed = 1.0
+        elif level == "medium":
+            self.settings.ship_speed = 2.5
+            self.settings.bullet_speed = 4.0
+            self.settings.alien_speed = 1.5
+        elif level == "hard":
+            self.settings.ship_speed = 3.5
+            self.settings.bullet_speed = 5.0
+            self.settings.alien_speed = 2.5
+
+        self.difficulty_selected = True
+
 
 if __name__ == '__main__':
     # bir oyun örneği oluştur ve oyunu çalıştır.
