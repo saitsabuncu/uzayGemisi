@@ -34,7 +34,7 @@ class AlienInvasion:
         self.ship = Ship(self)
         # Arka plan rengini ayarla.
         self.bg_color = (230, 230, 230)
-        self.ship=Ship(self)
+
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self._create_fleet()
@@ -173,15 +173,8 @@ class AlienInvasion:
         if now - self.last_bullet_time >= self.bullet_cooldown:
             self.last_bullet_time = now
 
-            # Sadece tek bir kez sesi çal
             if self.sound_on and not pygame.mixer.Channel(0).get_busy():
                 pygame.mixer.Channel(0).play(self.laser_sound)
-
-            if self.sound_on:
-                self.explosion_sound.play()
-
-            if self.sound_on:
-                self.start_sound.play()
 
             if len(self.bullets) < self.settings.bullets_allowed:
                 # Orta mermi
