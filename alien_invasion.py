@@ -76,38 +76,51 @@ class AlienInvasion:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    self.ship.moving_right = True
-                elif event.key == pygame.K_LEFT:
-                    self.ship.moving_left = True
-                elif event.key == pygame.K_UP:
-                    self.ship.moving_up = True
-                elif event.key == pygame.K_DOWN:
-                    self.ship.moving_down = True
-                elif event.key == pygame.K_q:
-                    sys.exit()
-                elif event.key == pygame.K_SPACE:
-                    self._fire_bullet()
-                elif event.key == pygame.K_p:
-                    if not self.stats.game_active:
-                        self._start_game()
-                elif event.key == pygame.K_m:
-                    self.sound_on = not self.sound_on
-                    print("Ses Açık mı:",self.sound_on)
+                self._handle_keydown(event)
+
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if not self.difficulty_selected:
-                    if self.easy_button.rect.collidepoint(mouse_pos):
-                        self._set_difficulty("easy")
-                    elif self.medium_button.rect.collidepoint(mouse_pos):
-                        self._set_difficulty("medium")
-                    elif self.hard_button.rect.collidepoint(mouse_pos):
-                        self._set_difficulty("hard")
-                else:
-                    self._check_play_button(mouse_pos)
+                self._handle_mouse_click()
+
+    def _handle_keydown(self, event):
+        """Tuş basımı olaylarını işle."""
+        key = event.key
+
+        if key == pygame.K_RIGHT:
+            self.ship.moving_right = True
+        elif key == pygame.K_LEFT:
+            self.ship.moving_left = True
+        elif key == pygame.K_UP:
+            self.ship.moving_up = True
+        elif key == pygame.K_DOWN:
+            self.ship.moving_down = True
+        elif key == pygame.K_q:
+            sys.exit()
+        elif key == pygame.K_SPACE:
+            self._fire_bullet()
+        elif key == pygame.K_p and not self.stats.game_active:
+            self._start_game()
+        elif key == pygame.K_m:
+            self.sound_on = not self.sound_on
+            print("Ses Açık mı:", self.sound_on)
+
+    def _handle_mouse_click(self):
+        """Fare tıklamasına yanıt ver."""
+        mouse_pos = pygame.mouse.get_pos()
+
+        if not self.difficulty_selected:
+            if self.easy_button.rect.collidepoint(mouse_pos):
+                self._set_difficulty("easy")
+            elif self.medium_button.rect.collidepoint(mouse_pos):
+                self._set_difficulty("medium")
+            elif self.hard_button.rect.collidepoint(mouse_pos):
+                self._set_difficulty("hard")
+        else:
+            self._check_play_button(mouse_pos)
 
     def _check_play_button(self, mouse_pos):
         """Oyuncu Play'e tıkladığında yeni bir oyun başlat."""
@@ -369,6 +382,7 @@ class AlienInvasion:
             self.settings.alien_speed = 2.5
 
         self.difficulty_selected = True
+        pygame.display.flip()
 
 
 if __name__ == '__main__':
