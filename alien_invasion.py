@@ -10,6 +10,7 @@ from alien import Alien
 from difficulty import DifficultyButton
 import pygame.mixer
 
+
 class AlienInvasion:
     """
     oyunun değerlerini ve davranışını
@@ -20,11 +21,11 @@ class AlienInvasion:
         """oyunu başlat ve oyun kaynaklarını oluştur.
         """
         pygame.init()
-        pygame.mixer.init() # Ses sistemi başlat
+        pygame.mixer.init()  # Ses sistemi başlat
         pygame.mixer.set_num_channels(16)
         self.settings = Setting()
         self.screen = pygame.display.set_mode((self.settings.screen_width,
-                                              self.settings.screen_height))
+                                               self.settings.screen_height))
 
         pygame.display.set_caption("Uzayli Istilasi")
         # bir skorbord ve Oyun istatistiklerini saklamak
@@ -41,7 +42,7 @@ class AlienInvasion:
 
         # Play düğmesini oluştur.
         self.play_button = Button(self, "Play")
-        #self.game_over_button = Button(self, "Game Over")
+        self.game_over_button = Button(self, "Game Over")
         self.difficulty_selected = False
         self.easy_button = DifficultyButton(self, "Kolay", -60)
         self.medium_button = DifficultyButton(self, "Orta", 0)
@@ -76,51 +77,38 @@ class AlienInvasion:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-
             elif event.type == pygame.KEYDOWN:
-                self._handle_keydown(event)
-
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = True
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = True
+                elif event.key == pygame.K_UP:
+                    self.ship.moving_up = True
+                elif event.key == pygame.K_DOWN:
+                    self.ship.moving_down = True
+                elif event.key == pygame.K_q:
+                    sys.exit()
+                elif event.key == pygame.K_SPACE:
+                    self._fire_bullet()
+                elif event.key == pygame.K_p:
+                    if not self.stats.game_active:
+                        self._start_game()
+                elif event.key == pygame.K_m:
+                    self.sound_on = not self.sound_on
+                    print("Ses Açık mı:", self.sound_on)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
-
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                self._handle_mouse_click()
-
-    def _handle_keydown(self, event):
-        """Tuş basımı olaylarını işle."""
-        key = event.key
-
-        if key == pygame.K_RIGHT:
-            self.ship.moving_right = True
-        elif key == pygame.K_LEFT:
-            self.ship.moving_left = True
-        elif key == pygame.K_UP:
-            self.ship.moving_up = True
-        elif key == pygame.K_DOWN:
-            self.ship.moving_down = True
-        elif key == pygame.K_q:
-            sys.exit()
-        elif key == pygame.K_SPACE:
-            self._fire_bullet()
-        elif key == pygame.K_p and not self.stats.game_active:
-            self._start_game()
-        elif key == pygame.K_m:
-            self.sound_on = not self.sound_on
-            print("Ses Açık mı:", self.sound_on)
-
-    def _handle_mouse_click(self):
-        """Fare tıklamasına yanıt ver."""
-        mouse_pos = pygame.mouse.get_pos()
-
-        if not self.difficulty_selected:
-            if self.easy_button.rect.collidepoint(mouse_pos):
-                self._set_difficulty("easy")
-            elif self.medium_button.rect.collidepoint(mouse_pos):
-                self._set_difficulty("medium")
-            elif self.hard_button.rect.collidepoint(mouse_pos):
-                self._set_difficulty("hard")
-        else:
-            self._check_play_button(mouse_pos)
+                mouse_pos = pygame.mouse.get_pos()
+                if not self.difficulty_selected:
+                    if self.easy_button.rect.collidepoint(mouse_pos):
+                        self._set_difficulty("easy")
+                    elif self.medium_button.rect.collidepoint(mouse_pos):
+                        self._set_difficulty("medium")
+                    elif self.hard_button.rect.collidepoint(mouse_pos):
+                        self._set_difficulty("hard")
+                else:
+                    self._check_play_button(mouse_pos)
 
     def _check_play_button(self, mouse_pos):
         """Oyuncu Play'e tıkladığında yeni bir oyun başlat."""
@@ -137,7 +125,7 @@ class AlienInvasion:
             self.sb.prep_ships()
             self._start_game()
 
-    def _check_keydown_events(self,event):
+    def _check_keydown_events(self, event):
         """tuşa basmalara yanıt ver."""
         if event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
@@ -155,10 +143,27 @@ class AlienInvasion:
             if not self.stats.game_active:
                 self._start_game()
 
+    def _play_sound(self, sound, channel=None):
+        """Ses efekti çalmak için yardımcı metot."""
+        if self.sound_on:
+            if channel is not None:
+                if not pygame.mixer.Channel(channel).get_busy():
+                    pygame.mixer.Channel(channel).play(sound)
+            else:
+                sound.play()
+
+    def _create_bullet(self, position):
+        """Verilen konuma göre bir mermi oluştur ve gruba ekle."""
+        bullet = Bullet(self)
+        bullet.rect.midtop = position
+        bullet.y = float(bullet.rect.y)
+        self.bullets.add(bullet)
+
+
     def _start_game(self):
         """Yeni bir oyun başlat."""
         if self.sound_on:
-            self.start_sound.play()
+            self._play_sound(self.start_sound)
 
         self.stats.reset_stats()
         self.stats.game_active = True
@@ -168,6 +173,7 @@ class AlienInvasion:
         self.ship.center_ship()
         # Fare imlecini gizle.
         pygame.mouse.set_visible(False)
+
 
     def _check_keyup_events(self, event):
         """Tuşu serbest bırakmalara yanıt ver."""
@@ -180,6 +186,7 @@ class AlienInvasion:
         elif event.key == pygame.K_DOWN:
             self.ship.moving_down = False
 
+
     def _fire_bullet(self):
         """Yeni bir mermi oluştur ve ses çal."""
         now = pygame.time.get_ticks()
@@ -187,28 +194,18 @@ class AlienInvasion:
             self.last_bullet_time = now
 
             if self.sound_on and not pygame.mixer.Channel(0).get_busy():
-                pygame.mixer.Channel(0).play(self.laser_sound)
+                self._play_sound(self.laser_sound, channel=0)
 
             if len(self.bullets) < self.settings.bullets_allowed:
-                # Orta mermi
-                center_bullet = Bullet(self)
-                center_bullet.rect.midtop = self.ship.rect.midtop
-                center_bullet.y = float(center_bullet.rect.y)
-                self.bullets.add(center_bullet)
+                # Üç mermi oluştur
+                self._create_bullet(self.ship.rect.midtop)
+                left = self.ship.rect.midleft
+                left = (left[0] - 5, left[1])
+                self._create_bullet(left)
+                right = self.ship.rect.midright
+                right = (right[0] + 15, right[1])
+                self._create_bullet(right)
 
-                # Sol mermi
-                left_bullet = Bullet(self)
-                left_bullet.rect.midtop = self.ship.rect.midleft
-                left_bullet.rect.x -= 5
-                left_bullet.y = float(left_bullet.rect.y)
-                self.bullets.add(left_bullet)
-
-                # Sağ mermi
-                right_bullet = Bullet(self)
-                right_bullet.rect.midtop = self.ship.rect.midright
-                right_bullet.rect.x += 15
-                right_bullet.y = float(right_bullet.rect.y)
-                self.bullets.add(right_bullet)
 
     def _update_bullets(self):
         """mermilerin konumunu güncelle ve
@@ -218,8 +215,9 @@ class AlienInvasion:
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
-        #uzaylılara çarpan mermileri kontrol et.
+        # uzaylılara çarpan mermileri kontrol et.
         self._check_bullet_alien_collisions()
+
 
     def _check_bullet_alien_collisions(self):
         """mermi-uzaylı çarpışmasına yanıt ver."""
@@ -228,7 +226,7 @@ class AlienInvasion:
             self.bullets, self.aliens, True, True)
 
         if collisions and self.sound_on:
-            self.explosion_sound.play()
+            self._play_sound(self.explosion_sound)
             for aliens in collisions.values():
                 self.stats.score += self.settings.alien_points * len(aliens)
             self.sb.prep_score()
@@ -244,6 +242,7 @@ class AlienInvasion:
             self.stats.level += 1
             self.sb.prep_level()
 
+
     def _update_aliens(self):
         """Filonun kenarda olup olmadığını
         kontrol et , daha sonra filodaki tüm
@@ -257,6 +256,7 @@ class AlienInvasion:
             self._ship_hit()
         # ekranın alt tarafına çarpan uzaylıları ara.
         self._check_aliens_bottom()
+
 
     def _update_screen(self):
         """Ekrandaki resimleri güncelle ve yeni ekran ekle."""
@@ -287,6 +287,7 @@ class AlienInvasion:
 
         pygame.display.flip()
 
+
     def _create_fleet(self):
         """uzaylı filosunu oluştur."""
         alien = Alien(self)
@@ -296,12 +297,13 @@ class AlienInvasion:
 
         # Ekrana sığan uzaylı satırları sayısını belirle.
         ship_height = self.ship.rect.height
-        available_space_y = (self.settings.screen_height - (3*alien_height) - ship_height)
-        number_rows = available_space_y // (2*alien_height)
+        available_space_y = (self.settings.screen_height - (3 * alien_height) - ship_height)
+        number_rows = available_space_y // (2 * alien_height)
         # tüm uzaylı filosunu oluştur.
         for row_number in range(number_rows):
             for alien_number in range(number_aliens_x):
                 self._create_alien(alien_number, row_number)
+
 
     def _create_alien(self, alien_number, row_number):
         """bir uzaylı oluştur ve satıra yerleştir. """
@@ -311,6 +313,7 @@ class AlienInvasion:
         alien.rect.x = alien.x
         alien.rect.y = alien_height + 2 * alien.rect.height * row_number
         self.aliens.add(alien)
+
 
     def _check_fleet_edges(self):
         """
@@ -322,12 +325,14 @@ class AlienInvasion:
                 self._change_fleet_direction()
                 break
 
+
     def _change_fleet_direction(self):
         """tüm bir filoyu düşür
         ve filonun yönünü değiştir."""
         for alien in self.aliens.sprites():
             alien.rect.y += self.settings.fleet_drop_speed
         self.settings.fleet_direction *= -1
+
 
     def _ship_hit(self):
         """uzaylı tarafından vurulan gemiye yanıt ver."""
@@ -336,18 +341,19 @@ class AlienInvasion:
             self.stats.ships_left -= 1
             self.sb.prep_ships()
 
-        # geri kalan uzaylı ve mermilerden kurtul.
+            # geri kalan uzaylı ve mermilerden kurtul.
             self.aliens.empty()
             self.bullets.empty()
 
-        # yeni bir filo oluştur ve gemiyi merkeze koy.
+            # yeni bir filo oluştur ve gemiyi merkeze koy.
             self._create_fleet()
             self.ship.center_ship()
-        # durdur
+            # durdur
             sleep(0.5)
         else:
             self.stats.game_active = False
             pygame.mouse.set_visible(True)
+
 
     def _check_aliens_bottom(self):
         """ Herhangi bir uzaylının ekranın alt
@@ -355,9 +361,10 @@ class AlienInvasion:
         screen_rect = self.screen.get_rect()
         for alien in self.aliens.sprites():
             if alien.rect.bottom >= screen_rect.bottom:
-                #buna gemiye çarpıldığında olduğu gibi muamele et.
+                # buna gemiye çarpıldığında olduğu gibi muamele et.
                 self._ship_hit()
                 break
+
 
     def check_high_score(self):
         if self.stats.score > self.stats.high_score:
@@ -365,6 +372,7 @@ class AlienInvasion:
             self.prep_high_score()
             with open("high_score.txt", "w") as f:
                 f.write(str(self.stats.high_score))
+
 
     def _set_difficulty(self, level):
         """Seçilen zorluk seviyesine göre ayarları güncelle."""
