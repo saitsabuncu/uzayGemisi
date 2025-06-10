@@ -8,6 +8,7 @@ from ship import Ship
 from bullet import Bullet
 from alien import Alien
 from difficulty import DifficultyButton
+import pygame.mixer
 
 class AlienInvasion:
     """
@@ -19,6 +20,8 @@ class AlienInvasion:
         """oyunu başlat ve oyun kaynaklarını oluştur.
         """
         pygame.init()
+        pygame.mixer.init() # Ses sistemi başlat
+        pygame.mixer.set_num_channels(16)
         self.settings = Setting()
         self.screen = pygame.display.set_mode((self.settings.screen_width,
                                               self.settings.screen_height))
@@ -44,6 +47,15 @@ class AlienInvasion:
         self.medium_button = DifficultyButton(self, "Orta", 0)
         self.hard_button = DifficultyButton(self, "Zor", 60)
 
+        self.laser_sound = pygame.mixer.Sound("sounds/laser.wav")
+        self.explosion_sound = pygame.mixer.Sound("sounds/explosion.wav")
+        self.start_sound = pygame.mixer.Sound("sounds/start.wav")
+
+        self.last_bullet_time = 0
+        self.bullet_cooldown = 150  # ms
+
+        self.sound_on = True  # Ses açık mı?
+
     def run_game(self):
         """Oyun için ana döngüyü başlat."""
         try:
@@ -65,12 +77,26 @@ class AlienInvasion:
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
-                self._check_keydown_events(event)
-
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = True
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = True
+                elif event.key == pygame.K_UP:
+                    self.ship.moving_up = True
+                elif event.key == pygame.K_DOWN:
+                    self.ship.moving_down = True
+                elif event.key == pygame.K_q:
+                    sys.exit()
+                elif event.key == pygame.K_SPACE:
+                    self._fire_bullet()
+                elif event.key == pygame.K_p:
+                    if not self.stats.game_active:
+                        self._start_game()
+                elif event.key == pygame.K_m:
+                    self.sound_on = not self.sound_on
+                    print("Ses Açık mı:",self.sound_on)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
-
-                    #self.ship.rect.x += 1
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if not self.difficulty_selected:
@@ -118,6 +144,9 @@ class AlienInvasion:
 
     def _start_game(self):
         """Yeni bir oyun başlat."""
+        if self.sound_on:
+            self.start_sound.play()
+
         self.stats.reset_stats()
         self.stats.game_active = True
         self.aliens.empty()
@@ -139,30 +168,41 @@ class AlienInvasion:
             self.ship.moving_down = False
 
     def _fire_bullet(self):
-        """yeni bir mermi oluştur
-        ve bu mermi grubunu sakla,
-        Gemiden birden fazla yerden mermi ateşle.
-        """
-        if len(self.bullets) < self.settings.bullets_allowed:
-            # Orta mermi
-            center_bullet = Bullet(self)
-            center_bullet.rect.midtop = self.ship.rect.midtop
-            center_bullet.y = float(center_bullet.rect.y)
-            self.bullets.add(center_bullet)
+        """Yeni bir mermi oluştur ve ses çal."""
+        now = pygame.time.get_ticks()
+        if now - self.last_bullet_time >= self.bullet_cooldown:
+            self.last_bullet_time = now
 
-            # Sol mermi
-            left_bullet = Bullet(self)
-            left_bullet.rect.midtop = self.ship.rect.midleft
-            left_bullet.rect.x -= 5  # Biraz sola kaydır
-            left_bullet.y = float(left_bullet.rect.y)
-            self.bullets.add(left_bullet)
+            # Sadece tek bir kez sesi çal
+            if self.sound_on and not pygame.mixer.Channel(0).get_busy():
+                pygame.mixer.Channel(0).play(self.laser_sound)
 
-            # Sağ mermi
-            right_bullet = Bullet(self)
-            right_bullet.rect.midtop = self.ship.rect.midright
-            right_bullet.rect.x += 15  # Biraz sağa kaydır
-            right_bullet.y = float(right_bullet.rect.y)
-            self.bullets.add(right_bullet)
+            if self.sound_on:
+                self.explosion_sound.play()
+
+            if self.sound_on:
+                self.start_sound.play()
+
+            if len(self.bullets) < self.settings.bullets_allowed:
+                # Orta mermi
+                center_bullet = Bullet(self)
+                center_bullet.rect.midtop = self.ship.rect.midtop
+                center_bullet.y = float(center_bullet.rect.y)
+                self.bullets.add(center_bullet)
+
+                # Sol mermi
+                left_bullet = Bullet(self)
+                left_bullet.rect.midtop = self.ship.rect.midleft
+                left_bullet.rect.x -= 5
+                left_bullet.y = float(left_bullet.rect.y)
+                self.bullets.add(left_bullet)
+
+                # Sağ mermi
+                right_bullet = Bullet(self)
+                right_bullet.rect.midtop = self.ship.rect.midright
+                right_bullet.rect.x += 15
+                right_bullet.y = float(right_bullet.rect.y)
+                self.bullets.add(right_bullet)
 
     def _update_bullets(self):
         """mermilerin konumunu güncelle ve
@@ -181,7 +221,8 @@ class AlienInvasion:
         collisions = pygame.sprite.groupcollide(
             self.bullets, self.aliens, True, True)
 
-        if collisions:
+        if collisions and self.sound_on:
+            self.explosion_sound.play()
             for aliens in collisions.values():
                 self.stats.score += self.settings.alien_points * len(aliens)
             self.sb.prep_score()
@@ -232,6 +273,11 @@ class AlienInvasion:
         # Oyun durumu aktif değilse play düğmesini çiz
         elif not self.stats.game_active:
             self.play_button.draw_button()
+
+        font = pygame.font.SysFont(None, 30)
+        sound_status = "Ses: Açık" if self.sound_on else "Ses: Kapalı"
+        sound_text = font.render(sound_status, True, (255, 255, 255))
+        self.screen.blit(sound_text, (10, 10))  # Sol üst köşe
 
         pygame.display.flip()
 
