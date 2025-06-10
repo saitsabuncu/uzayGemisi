@@ -41,7 +41,7 @@ class AlienInvasion:
 
         # Play düğmesini oluştur.
         self.play_button = Button(self, "Play")
-        self.game_over_button = Button(self, "Game Over")
+        #self.game_over_button = Button(self, "Game Over")
         self.difficulty_selected = False
         self.easy_button = DifficultyButton(self, "Kolay", -60)
         self.medium_button = DifficultyButton(self, "Orta", 0)
